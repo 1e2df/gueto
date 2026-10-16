@@ -110,23 +110,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 500);
 
 
+  // Shared view counter (abacus.jasoncameron.dev): +1 each time the link is opened,
+  // ignoring reloads in the same tab and local testing.
   function initializeVisitorCounter() {
-    let totalVisitors = localStorage.getItem('totalVisitorCount');
-    if (!totalVisitors) {
-      totalVisitors = 921234;
-      localStorage.setItem('totalVisitorCount', totalVisitors);
-    } else {
-      totalVisitors = parseInt(totalVisitors);
-    }
+    const counterUrl = 'https://abacus.jasoncameron.dev';
+    const counterKey = 'endfps1-bio/views';
+    const isLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+    let alreadyCounted = false;
+    try { alreadyCounted = sessionStorage.getItem('viewCounted') === 'true'; } catch (e) {}
+    const action = (isLocal || alreadyCounted) ? 'get' : 'hit';
 
-    const hasVisited = localStorage.getItem('hasVisited');
-    if (!hasVisited) {
-      totalVisitors++;
-      localStorage.setItem('totalVisitorCount', totalVisitors);
-      localStorage.setItem('hasVisited', 'true');
-    }
-
-    visitorCount.textContent = totalVisitors.toLocaleString();
+    visitorCount.textContent = '0';
+    fetch(`${counterUrl}/${action}/${counterKey}`)
+      .then(res => res.ok ? res.json() : { value: 0 })
+      .then(data => {
+        if (action === 'hit') {
+          try { sessionStorage.setItem('viewCounted', 'true'); } catch (e) {}
+        }
+        visitorCount.textContent = (data.value || 0).toLocaleString();
+      })
+      .catch(() => {});
   }
 
 
