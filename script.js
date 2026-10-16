@@ -89,14 +89,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  const startMessage = "Click here to see the motion baby";
+  // Array.from splits by whole characters, so emoji are typed in one step.
+  const startMessage = Array.from("🔒");
   let startTextContent = '';
   let startIndex = 0;
   let startCursorVisible = true;
 
   function typeWriterStart() {
     if (startIndex < startMessage.length) {
-      startTextContent = startMessage.slice(0, startIndex + 1);
+      startTextContent = startMessage.slice(0, startIndex + 1).join('');
       startIndex++;
     }
     startText.textContent = startTextContent + (startCursorVisible ? '|' : ' ');
